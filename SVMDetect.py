@@ -17,7 +17,7 @@ result_test = [[1], [1], [1], [0], [0], [1], [1], [0], [0], [0]]
 svm_classifier = joblib.load('model_name.npy')
 class_name = ""
 def detect():
-    p2 = Path("TestSet/")
+    p2 = Path("TestSet2/")
     test_data = []
 
     for test_path in p2.glob("*.jpg"):
@@ -42,7 +42,7 @@ def detect():
     ypred_sklearn = svm_classifier.predict(test_data)
     #print(ypred_sklearn)
     #print("Do chinh xac cua thuat toan: ")
-    acc = accuracy_score(result_test, ypred_sklearn)
+    #acc = accuracy_score(result_test, ypred_sklearn)
     #print(str(acc * 100) + '%')
 
     if ypred_sklearn[0] == 1:
@@ -55,15 +55,20 @@ def detect():
 
 
 if __name__ == '__main__':
-    print(detect())
+    #print(detect())
+    n = 0
 
-    #while True:
-        #ret,frame = cap.read()
-        #cv2.imshow('abc', frame)
-        #if cv2.waitKey(1) & 0xFF == ord('y'):
-            #cv2.imwrite('TestSet/1.jpg',frame)
-            #detect()
+    while True:
+        ret,frame = cap.read()
+        cv2.imshow('abc', frame)
+        if cv2.waitKey(1) & 0xFF == ord('y'):
+            n+=1
+
+            gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            (thresh, binary) = cv2.threshold(gray_image, 128, 255, cv2.THRESH_BINARY)
+            cv2.imwrite('TestSet2/{:02}.jpg'.format(n), binary)
+            #print(detect())
             #cv2.destroyAllWindows()
             #break
-    #cap.release()
+    cap.release()
 
