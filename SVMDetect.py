@@ -5,51 +5,88 @@ import random
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 from sklearn import svm
-from keras.preprocessing import image
 from sklearn.metrics import accuracy_score
 import itertools
 import joblib
+from keras.applications.vgg16 import VGG16
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.applications.vgg16 import preprocess_input
 import cv2
+from collections import Counter
 cap = cv2.VideoCapture(0)
-
+model = VGG16(weights = 'imagenet', include_top = False)
 #from SVMClassification import drawImg
-
-result_test = [[0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]
-detect_result = []
+labels_index = []
 svm_classifier = joblib.load('model_name.npy')
-class_name = ""
+average_proba = []
+def predict(test_data):
+    ypred_sklearn = svm_classifier.predict_proba(test_data)
+    #ypred_sklearn1 = svm_classifier.predict(test_data)
+    i=0
+    for row in ypred_sklearn:
+        print("Row " + str(i+1))
+        max_proba = np.amax(row)
+        average_proba.append(max_proba)
+        if max_proba > 0.75:
+            index = np.argmax(row)
+            labels_index.append(index)
+        else:
+            labels_index.append(-1)
+        #print(np.amax(row))
+        i+=1
+        #print(labels_index)
+    label = dict(Counter(labels_index))
+    # Find Max Value of key of Dictionary:
+    max_value = max(label.values())  # maximum value
+    max_keys = [k for k, v in label.items() if v == max_value][0]  # getting all keys containing the `maximum`
+    result =[]
+    # SHOW AVERAGE ACCURACY OF ALGORITHM:
+    if max_keys == -1:
+        result.append(-1)
+        return result # UNDEFINED
+    else:
+        average_proba_num = sum(average_proba)/len(average_proba)
+        accuracy = max_value / 10
+        print(accuracy)
+        if accuracy > 0.7:
+            result.append(max_keys,average_proba_num)
+            return result
+    # SHOW AVERAGE PROBABILITY OF ALGORITHM:
+
+    #print(max_keys[0])
+    return
 def detect():
     p2 = Path("TestSet2/")
     test_data = []
-
+    # Prepare Test(Valid) Data
     for test_path in p2.glob("*.jpg"):
-        test = image.load_img(test_path, target_size=(32, 32))
+        test = image.load_img(test_path, target_size=(224, 224))
         test_array = image.img_to_array(test)
-        test_data.append(test_array)
+        # Add another Dimension for array
+        test_array = np.expand_dims(test_array, axis=0)
+        test_array = preprocess_input(test_array)
+        # Add feature to img
+        vgg16_feature_test = model.predict(test_array)
+        test_data.append(vgg16_feature_test)
 
-    #print('Test data: ')
-    #print(len(test_data))
+    test_data = np.array(test_data)
+    print(test_data.shape)
 
     test_data = np.array(test_data, dtype='float32')/255.0
-
-    def drawImg(img):
-        plt.imshow(img)
-        plt.axis('off')
-        plt.show()
-        return
-
-    #for i in range(10):
-    drawImg(test_data[0])
 
     N = test_data.shape[0]
     test_data = test_data.reshape(N,-1)
 
-    #print("TestSet conversion for One vs One classification: ")
-    #print(test_data.shape)
 
-    ypred_sklearn = svm_classifier.predict_proba(test_data)
-    ypred_sklearn1 = svm_classifier.predict(test_data)
-    print(ypred_sklearn1)
+
+    print(predict(test_data))
+
+
+
+
+
+
+
 
     #print(ypred_sklearn)
     #print("Do chinh xac cua thuat toan: ")
@@ -67,7 +104,7 @@ def detect():
     #     class_name = "LED"
 
     #print(class_name)
-    return ypred_sklearn
+    #return ypred_sklearn
 
 
 if __name__ == '__main__':
@@ -76,21 +113,23 @@ if __name__ == '__main__':
 
     while True:
         ret,frame = cap.read()
-
         cv2.imshow('abc', frame)
+        n=0
         if cv2.waitKey(1) & 0xFF == ord('y'):
-            #n+=1
-            dim = (1280, 960)
-            frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
-            #gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            #(thresh, binary) = cv2.threshold(gray_image, 128, 255, cv2.THRESH_BINARY)
-            #cv2.imwrite('TestSet2/{:02}.jpg'.format(n), binary)
-            cv2.imwrite('TestSet2/1.jpg', frame)
-            print(detect())
+            while(n<10):
+                n+=1
+                dim = (1280, 960)
+                frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
+
+                cv2.imwrite('TestSet2/{:02}.jpg'.format(n), frame)
+                print (n)
+                #cv2.imwrite('TestSet2/1.jpg', frame)
+                #print(detect())
             # detect_result.append(detect())
             # acc = accuracy_score(result_test, detect_result)
             # print(str(acc * 100) + '%')
-            #cv2.destroyAllWindows()
-            #break
+            cv2.destroyAllWindows()
+            break
+    detect()
     cap.release()
 
