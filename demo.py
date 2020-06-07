@@ -10,12 +10,12 @@ from pathlib import Path
 model = VGG16(weights = 'imagenet', include_top = False)
 vgg16_feature_list = []
 # Define Path:
-p = Path("Dataset/")
-p2 = Path("TestSet/")
+p = Path("TrainSet/")
+p2 = Path("Validation/")
 dirs = p.glob("*")
 
 # Define Label
-labels_dict = {'key': 0, 'pen': 1, 'keychain': 2, 'led': 3}
+labels_dict = {'key': 0, 'pen': 1, 'keychain': 2, 'card': 3}
 
 labels = []
 test_data = []

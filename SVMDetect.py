@@ -16,10 +16,12 @@ from collections import Counter
 cap = cv2.VideoCapture(0)
 model = VGG16(weights = 'imagenet', include_top = False)
 #from SVMClassification import drawImg
-labels_index = []
+
 svm_classifier = joblib.load('model_name.npy')
-average_proba = []
+
 def predict(test_data):
+    average_proba = []
+    labels_index = []
     ypred_sklearn = svm_classifier.predict_proba(test_data)
     #ypred_sklearn1 = svm_classifier.predict(test_data)
     i=0
@@ -32,31 +34,29 @@ def predict(test_data):
             labels_index.append(index)
         else:
             labels_index.append(-1)
-        #print(np.amax(row))
+        print(np.amax(row))
         i+=1
         #print(labels_index)
     label = dict(Counter(labels_index))
     # Find Max Value of key of Dictionary:
     max_value = max(label.values())  # maximum value
-    max_keys = [k for k, v in label.items() if v == max_value][0]  # getting all keys containing the `maximum`
-    result =[]
+    max_keys = [k for k, v in label.items() if v == max_value][0]  # getting all keys containing the `maximum
     # SHOW AVERAGE ACCURACY OF ALGORITHM:
     if max_keys == -1:
-        result.append(-1)
-        return result # UNDEFINED
+        return -1 # UNDEFINED
     else:
         average_proba_num = sum(average_proba)/len(average_proba)
         accuracy = max_value / 10
+        print("Do chinh xac cua thuat toan: ")
         print(accuracy)
         if accuracy > 0.7:
-            result.append(max_keys,average_proba_num)
-            return result
-    # SHOW AVERAGE PROBABILITY OF ALGORITHM:
+            print("Do chinh xac trung binh: ")
+            print(average_proba_num)
+            print("Class: ")
+            return max_keys
 
-    #print(max_keys[0])
-    return
 def detect():
-    p2 = Path("TestSet2/")
+    p2 = Path("output/")
     test_data = []
     # Prepare Test(Valid) Data
     for test_path in p2.glob("*.jpg"):
@@ -70,22 +70,16 @@ def detect():
         test_data.append(vgg16_feature_test)
 
     test_data = np.array(test_data)
+    print("Shape: ")
     print(test_data.shape)
 
     test_data = np.array(test_data, dtype='float32')/255.0
 
     N = test_data.shape[0]
     test_data = test_data.reshape(N,-1)
-
-
+    print("abc:")
 
     print(predict(test_data))
-
-
-
-
-
-
 
 
     #print(ypred_sklearn)
@@ -121,15 +115,17 @@ if __name__ == '__main__':
                 dim = (1280, 960)
                 frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
 
-                cv2.imwrite('TestSet2/{:02}.jpg'.format(n), frame)
-                print (n)
+                cv2.imwrite('output/{:02}.jpg'.format(n), frame)
+                #print (n)
                 #cv2.imwrite('TestSet2/1.jpg', frame)
                 #print(detect())
+            detect()
             # detect_result.append(detect())
             # acc = accuracy_score(result_test, detect_result)
             # print(str(acc * 100) + '%')
-            cv2.destroyAllWindows()
-            break
-    detect()
+            # cv2.destroyAllWindows()
+            # break
+
+
     cap.release()
 
