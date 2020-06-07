@@ -1,23 +1,34 @@
 import numpy as np
-import os
+# import os
 from pathlib import Path
 import random
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix
-from sklearn import svm
-from sklearn.metrics import accuracy_score
-import itertools
+# from sklearn.metrics import confusion_matrix
+# from sklearn import svm
+# from sklearn.metrics import accuracy_score
+# import itertools
 import joblib
 from keras.applications.vgg16 import VGG16
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.vgg16 import preprocess_input
 import cv2
 from collections import Counter
+from database_firebase import goToFireBase
+from ConveyorX import ConveyorX
+import serial
+import time
+
 cap = cv2.VideoCapture(0)
 model = VGG16(weights = 'imagenet', include_top = False)
 #from SVMClassification import drawImg
 
 svm_classifier = joblib.load('model_name.npy')
+
+port = '/dev/ttyUSB0'  # note I'll use Mac OS-X if i had money
+
+ard = serial.Serial(port, 115200, timeout=1)
+time.sleep(2)  # wait for Arduino
+
 
 def predict(test_data):
     average_proba = []
@@ -79,8 +90,8 @@ def detect():
     test_data = test_data.reshape(N,-1)
     print("abc:")
 
-    print(predict(test_data))
-
+    # print(predict(test_data))
+    return predict(test_data)
 
     #print(ypred_sklearn)
     #print("Do chinh xac cua thuat toan: ")
@@ -104,7 +115,10 @@ def detect():
 if __name__ == '__main__':
     #print(detect())
     #n = 0
-
+    ConveyorX('M310 1', ard)
+    ConveyorX('M313 100', ard)
+    ConveyorX('M312 -180', ard)
+    ConveyorX('M310 1', ard)
     while True:
         ret,frame = cap.read()
         cv2.imshow('abc', frame)
@@ -118,14 +132,15 @@ if __name__ == '__main__':
                 cv2.imwrite('output/{:02}.jpg'.format(n), frame)
                 #print (n)
                 #cv2.imwrite('TestSet2/1.jpg', frame)
-                #print(detect())
-            detect()
-            # detect_result.append(detect())
-            # acc = accuracy_score(result_test, detect_result)
-            # print(str(acc * 100) + '%')
-            # cv2.destroyAllWindows()
-            # break
+                
 
-
+            # detect()
+            if detect() == 0:
+            
+                if goToFireBase():
+                    ConveyorX('M313 100', ard)
+                    ConveyorX('M312 -180', ard)
+                    ConveyorX('M310 1', ard)
+                      
     cap.release()
 
