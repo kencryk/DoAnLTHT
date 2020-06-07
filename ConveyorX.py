@@ -14,10 +14,10 @@ firebase = firebase.FirebaseApplication("https://pythondbtest-d6805.firebaseio.c
 cap = cv2.VideoCapture(0)
 
 
-def ConveyorUsingSerialMode():
+def ConveyorX(signal):
     # Serial write section
 
-    setTempCar1 = 'M310 1\r\n'
+    setTempCar1 = signal + '\r\n'
     # setTempCar2 = 'M312 100\r\n'
     ard.flush()
     setTemp1 = str(setTempCar1)
@@ -29,36 +29,22 @@ def ConveyorUsingSerialMode():
     time.sleep(2)
 
     msg = ard.read(ard.inWaiting())  # read all characters in buffer
-    # print("Message from arduino: ")
-    # print(msg)
-    # print("Python value sent: ")
-    # print(setTemp2)
-    # ard.write(setTemp2.encode())
-    # I shortened this to match the new value in your Arduino code
-    # time.sleep(1)
-    # Serial read section
-    # msg = ard.read(ard.inWaiting())
-    # print("Message from arduino: ")
-    # print(msg)
     print("AlreadySent")
     return
-
-
-def ConveyorXSendSignalPosition():
-    # setTempCar1 = 'M310 1\r\n'
-    setTempCar2 = 'M312 -200\r\n'
-    ard.flush()
-    setTemp1 = str(setTempCar2)
-    print("Python value sent: ")
-    print(setTemp1)
-    ard.write(setTemp1.encode())
-    time.sleep(2)
-
-    msg = ard.read(ard.inWaiting())  # read all characters in buffer
-    # print("Message from arduino: ")
-    # print(msg)
-
-    print("AlreadySent")
+# def ConveyorXSendSignalPosition():
+#     # setTempCar1 = 'M310 1\r\n'
+#     setTempCar2 = 'M312 -200\r\n'
+#     ard.flush()
+#     setTemp1 = str(setTempCar2)
+#     print("Python value sent: ")
+#     print(setTemp1)
+#     ard.write(setTemp1.encode())
+#     time.sleep(2)
+#
+#     msg = ard.read(ard.inWaiting())  # read all characters in buffer
+#
+#
+#     print("AlreadySent")
 
 
 def database():
@@ -71,11 +57,11 @@ def database():
         if count < new_count:
             print(name)
             print(new_count)
-            ConveyorXSendSignalPosition()
+            ConveyorX('M312 -200')
     return
 
 
 if __name__ == "__main__":
-    ConveyorUsingSerialMode()
+    ConveyorX('M310 1')
     OpenCamera()
     database()
