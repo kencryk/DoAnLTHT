@@ -110,16 +110,19 @@ if __name__ == '__main__':
     ConveyorX('M312 -200', ard)
     ConveyorX('M310 1', ard)
     dim = (1280, 960)
+    #REQUIRE TIME OR NOT
     while True:
+        ret, frame = cap.read()
+        cv2.imshow('img1', frame)
         for i in range(5):
-            ret,frame = cap.read()
             #cv2.imshow('abc', frame)
             if ret == False:
                 break
-
             frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
             cv2.imwrite('output/{:02}.jpg'.format(i), frame)
-        
+        if cv2.waitKey(1) & 0xFF == ord('y'):
+            cv2.destroyAllWindows()
+            break
             # detect()
         result = detect()
         if result == 0:
@@ -142,6 +145,6 @@ if __name__ == '__main__':
                 ConveyorX('M313 100', ard)
                 ConveyorX('M312 -180', ard)
                 ConveyorX('M310 1', ard)
-        break        
+
     cap.release()
 
