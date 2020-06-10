@@ -1,12 +1,9 @@
 import numpy as np
-# import os
+
 from pathlib import Path
 import random
 import matplotlib.pyplot as plt
-# from sklearn.metrics import confusion_matrix
-# from sklearn import svm
-# from sklearn.metrics import accuracy_score
-# import itertools
+
 import joblib
 from keras.applications.vgg16 import VGG16
 from tensorflow.keras.preprocessing import image
@@ -17,10 +14,13 @@ from database_firebase import goToFireBase
 from ConveyorX import ConveyorX
 import serial
 import time
+import testServo
+import RPi.GPIO as GPIO
+
 
 cap = cv2.VideoCapture(0)
 model = VGG16(weights = 'imagenet', include_top = False)
-#from SVMClassification import drawImg
+
 
 svm_classifier = joblib.load('model_name.npy')
 
@@ -40,7 +40,7 @@ def predict(test_data):
     average_proba = []
     labels_index = []
     ypred_sklearn = svm_classifier.predict_proba(test_data)
-    #ypred_sklearn1 = svm_classifier.predict(test_data)
+    
     i=0
     for row in ypred_sklearn:
         print("Row " + str(i+1))
@@ -124,23 +124,23 @@ if __name__ == '__main__':
         result = detect()
         if result == 0:
             if goToFireBase(data_string_firebase.get(list(data_string_firebase)[0])):
-                ConveyorX('M313 100', ard)
-                ConveyorX('M312 -180', ard)
+                testServo.servoVat0()
+                ConveyorX('M312 -200', ard)
                 ConveyorX('M310 1', ard)
         elif result == 2:
             if goToFireBase(data_string_firebase.get(list(data_string_firebase)[1])):
-                ConveyorX('M313 100', ard)
-                ConveyorX('M312 -180', ard)
+                testServo.servoVat1()
+                ConveyorX('M312 -200', ard)
                 ConveyorX('M310 1', ard)
         elif result == 3:
             if goToFireBase(data_string_firebase.get(list(data_string_firebase)[2])):
-                ConveyorX('M313 100', ard)
-                ConveyorX('M312 -180', ard)
+                testServo.servoVat2()
+                ConveyorX('M312 -200', ard)
                 ConveyorX('M310 1', ard)
         elif result == -1:
             if goToFireBase(data_string_firebase.get(list(data_string_firebase)[3])):
-                ConveyorX('M313 100', ard)
-                ConveyorX('M312 -180', ard)
+                testServo.servoVat3()
+                ConveyorX('M312 -200', ard)
                 ConveyorX('M310 1', ard)
         break        
     cap.release()
