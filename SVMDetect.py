@@ -107,7 +107,7 @@ if __name__ == '__main__':
     #n = 0
     ConveyorX('M310 1', ard)
     ConveyorX('M313 100', ard)
-    ConveyorX('M312 -180', ard)
+    ConveyorX('M312 -200', ard)
     ConveyorX('M310 1', ard)
     dim = (1280, 960)
     while True:

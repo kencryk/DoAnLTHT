@@ -29,9 +29,3 @@ def ConveyorX(signal, ard):
     print("AlreadySent")
     return
 
-
-
-# if __name__ == "__main__":
-#     ConveyorX('M310 1')
-#     OpenCamera()
-#     database()
